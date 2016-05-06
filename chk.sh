@@ -22,6 +22,10 @@ os_used=`uname`
 #        hr_time_cmd="date -d @"
 #fi
 
+HOST=`hostname`
+SUBJECT="${HOST} IP Change"
+FROM="no-reply@localhost.lu"
+
 epoch_time=`date +%s`
 
 last_change=$(date -d @`tail -1 ip.hist |cut -f 2 -d\ ` +"%Y-%m-%d %H:%M:%S")
@@ -35,6 +39,9 @@ else
         echo $current_ip $epoch_time >> ip.hist
         cat now.ip > current.ip
         now_change=$(date -d @`tail -1 ip.hist |cut -f 2 -d\ ` +"%Y-%m-%d %H:%M:%S")
-        #echo "Office IP Change from ${last_ip} to: ${current_ip} at ${now_change}" | mail -s "homeMer IP change" -aFrom:no-reply@localhost.lu spam@localhost.lu
-        echo "Office IP Change from ${last_ip} to: ${current_ip} at ${now_change}" | mail -s "homeMer IP change" localuser
+        if [ ${os_used} == 'OpenBSD']; then
+            echo "Office IP Change from ${last_ip} to: ${current_ip} at ${now_change}" | mail -s ${SUBJECT} -r ${FROM} localuser
+        else
+            echo "Office IP Change from ${last_ip} to: ${current_ip} at ${now_change}" | mail -s ${SUBJECT} -aFrom:${FROM} spam@localhost.lu
+        fi
 fi
